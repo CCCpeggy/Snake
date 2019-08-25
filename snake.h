@@ -1,8 +1,8 @@
-#pragma once
 #include<deque>
 #include<Windows.h>
 #include<iostream>
 #include<random>
+#include<conio.h>
 using namespace std;
 class Snake
 {
@@ -32,5 +32,5 @@ public:
 
 	bool move(int = NONE);
 	bool moveValiad(int);
+	int getDirection();
 };
-

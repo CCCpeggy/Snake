@@ -32,7 +32,7 @@ void Snake::drawBlock(int x, int y, bool visible)
 	coord.Y = y;
 	SetConsoleTextAttribute(handleOut, visible ? WHITE : BLACK);
 	SetConsoleCursorPosition(handleOut, coord);
-	cout << "¡@";
+	cout << "  ";
 }
 
 void Snake::newBlock()
@@ -56,16 +56,7 @@ bool Snake::touchSnake(int x, int y, bool start, bool end)
 Snake::Snake(HANDLE handleOut, int width, int height, int start, int end)
 	:handleOut(handleOut), width(width), height(height)
 {
-	SetConsoleTextAttribute(handleOut, BLACK);
-	int x = start;
-	int y = end;
-	pushStart(x, y);
-	pushStart(x + 1, y);
-	pushStart(x + 2, y);
-	pushStart(x + 3, y);
-	pushStart(x + 4, y);
-	pushStart(x + 5, y);
-	pushStart(x + 6, y);
+	for (int i = 0; i <= 6; i += 2) pushStart(start + i, end);
 	newBlock();
 }
 
@@ -74,34 +65,60 @@ Snake::~Snake()
 	clear();
 }
 
-bool Snake::move(int forward)
+bool Snake::move(int direction)
 {
-	if (forward == NONE) forward = pForword;
-	else pForword = forward;
+	if (direction == NONE) direction = pForword;
+	else pForword = direction;
 	pair<int, int> start = snake.back();
 	int x = start.first, y = start.second;
-	if (forward == UP) y--;
-	else if (forward == DOWN) y++;
-	else if (forward == LEFT) x-=2;
-	else if (forward == RIGHT) x+=2;
-	SetConsoleTextAttribute(handleOut, WHITE);
+	if (direction == UP) y--;
+	else if (direction == DOWN) y++;
+	else if (direction == LEFT) x-=2;
+	else if (direction == RIGHT) x+=2;
 
 	x += width; x %= width;
 	y += height; y %= height;
 
 	if (touchSnake(x, y, false, false)) return false;
-
 	pushStart(x, y);
 	if (x != blockX || y != blockY) popEnd();
-	else newBlock();
+	else {
+		newBlock();
+	}
 
 	return true;
 }
 
-bool Snake::moveValiad(int forward)
+bool Snake::moveValiad(int direction)
 {
-	SetConsoleTextAttribute(handleOut, WHITE);
-	int diff = forward - pForword;
-	if (forward / 2 == pForword / 2 && forward % 2 != pForword % 2) return false;
+	int diff = direction - pForword;
+	if (direction / 2 == pForword / 2 && direction % 2 != pForword % 2) return false;
 	return true;
+}
+
+int Snake::getDirection() {
+	while (true) {
+		int key = _getch();
+		switch (key) {
+		case 224:
+			key = _getch();
+			int direction = Snake::NONE;
+			switch (key)
+			{
+			case 0x48:
+				direction = Snake::UP;
+				break;
+			case 0x50: 
+				direction = Snake::DOWN;
+				break;
+			case 0x4D: 
+				direction = Snake::RIGHT;
+				break;
+			case 0x4B: 
+				direction = Snake::LEFT;
+				break;
+			} 
+			if (direction != Snake::NONE && moveValiad(direction)) return direction;
+		}
+	}
 }
